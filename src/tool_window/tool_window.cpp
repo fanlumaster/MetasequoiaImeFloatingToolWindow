@@ -72,8 +72,12 @@ HRESULT CreateToolWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpC
     static const MARGINS shadow_state[3]{{0, 0, 0, 0}, {1, 1, 1, 1}, {-1, -1, -1, -1}};
     ::DwmExtendFrameIntoClientArea(g_hwnd, &shadow_state[2]);
 
+    BOOL cloak = TRUE;
+    DwmSetWindowAttribute(g_hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
     ShowWindow(g_hwnd, SW_SHOW);
     UpdateWindow(g_hwnd);
+    cloak = FALSE;
+    DwmSetWindowAttribute(g_hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
     return S_OK;
 }
@@ -82,8 +86,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_ERASEBKGND:
-        return 1;
     case WM_NCPAINT:
         return 0;
     case WM_NCACTIVATE:
