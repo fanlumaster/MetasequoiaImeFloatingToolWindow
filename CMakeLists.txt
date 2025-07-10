@@ -16,6 +16,8 @@ set(MY_EXECUTABLE_NAME "MetasequoiaImeFloatingToolWindow")
 include_directories("./src")
 set(
   SOURCE_FILES
+  "./src/d2d/render_d2d.cpp"
+  "./src/d2d/render_d2d.h"
   "./src/tool_window/tool_window.cpp"
   "./src/tool_window/tool_window.h"
   "./src/main.cpp"

@@ -1,0 +1,86 @@
+#include "render_d2d.h"
+
+static ComPtr<ID2D1Factory> pD2DFactory;
+static ComPtr<ID2D1HwndRenderTarget> pRenderTarget;
+static ComPtr<ID2D1SolidColorBrush> pBrush;
+static ComPtr<IDWriteFactory> pDWriteFactory;
+static ComPtr<IDWriteTextFormat> pTextFormat;
+
+bool InitD2DAndDWrite()
+{
+    // Direct2D
+    HRESULT hr = D2D1CreateFactory(              //
+        D2D1_FACTORY_TYPE_SINGLE_THREADED,       //
+        IID_PPV_ARGS(pD2DFactory.GetAddressOf()) //
+    );
+    if (FAILED(hr))
+        return false;
+
+    // DirectWrite
+    hr = DWriteCreateFactory(                                        //
+        DWRITE_FACTORY_TYPE_SHARED,                                  //
+        __uuidof(IDWriteFactory),                                    //
+        reinterpret_cast<IUnknown **>(pDWriteFactory.GetAddressOf()) //
+    );
+    if (FAILED(hr))
+        return false;
+
+    // TextFormat
+    hr = pDWriteFactory->CreateTextFormat( //
+        L"Noto Sans SC",                   //
+        nullptr,                           //
+        DWRITE_FONT_WEIGHT_NORMAL,         //
+        DWRITE_FONT_STYLE_NORMAL,          //
+        DWRITE_FONT_STRETCH_NORMAL,        //
+        20.0f,                             //
+        L"zh-cn",                          //
+        pTextFormat.GetAddressOf()         //
+    );
+
+    pTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+
+    if (FAILED(hr))
+        return false;
+
+    return true;
+}
+
+bool InitD2DRenderTarget(HWND hwnd)
+{
+    if (!pD2DFactory)
+        return false;
+
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+
+    HRESULT hr = pD2DFactory->CreateHwndRenderTarget(                             //
+        D2D1::RenderTargetProperties(                                             //
+            D2D1_RENDER_TARGET_TYPE_DEFAULT,                                      //
+            D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED) //
+            ),                                                                    //
+        D2D1::HwndRenderTargetProperties(                                         //
+            hwnd,                                                                 //
+            D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top),                  //
+            D2D1_PRESENT_OPTIONS_IMMEDIATELY                                      //
+            ),                                                                    //
+        pRenderTarget.GetAddressOf()                                              //
+    );
+
+    if (SUCCEEDED(hr))
+    {
+        hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), pBrush.GetAddressOf());
+    }
+
+    return SUCCEEDED(hr);
+}
+
+int PaintToolMenus(HWND hwnd)
+{
+    if (!pRenderTarget)
+        return -1;
+
+    pRenderTarget->BeginDraw();
+    pRenderTarget->Clear(D2D1::ColorF(25.0f / 255.0f, 25.0f / 255.0f, 25.0f / 255.0f));
+    pRenderTarget->EndDraw();
+    return 0;
+}

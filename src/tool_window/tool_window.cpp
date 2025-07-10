@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <dwmapi.h>
 #include <winnt.h>
+#include "d2d/render_d2d.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -68,8 +69,8 @@ HRESULT CreateToolWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpC
     }
 
     /* Extend frame into client area */
-    static const MARGINS shadow_state[2]{{0, 0, 0, 0}, {1, 1, 1, 1}};
-    ::DwmExtendFrameIntoClientArea(g_hwnd, &shadow_state[1]);
+    static const MARGINS shadow_state[3]{{0, 0, 0, 0}, {1, 1, 1, 1}, {-1, -1, -1, -1}};
+    ::DwmExtendFrameIntoClientArea(g_hwnd, &shadow_state[2]);
 
     ShowWindow(g_hwnd, SW_SHOW);
     UpdateWindow(g_hwnd);
@@ -81,14 +82,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_NCPAINT: {
+    case WM_ERASEBKGND:
+        return 1;
+    case WM_NCPAINT:
         return 0;
-    }
     case WM_NCACTIVATE:
         return TRUE;
     case WM_NCCALCSIZE:
         return 0;
     case WM_CREATE: {
+        if (!InitD2DAndDWrite())
+        {
+            OutputDebugString(L"InitD2DAndDWrite failed\n");
+            return -1;
+        }
+        if (!InitD2DRenderTarget(hwnd))
+        {
+            OutputDebugString(L"InitD2DRenderTarget failed\n");
+            return -1;
+        }
+    }
+    case WM_PAINT: {
+        PaintToolMenus(hwnd);
         break;
     }
     case WM_SIZE: {
