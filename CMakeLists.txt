@@ -10,6 +10,8 @@ add_definitions(
     /D_UNICODE=1
     /DUNICODE=1
 )
+# fmt
+find_package(fmt CONFIG REQUIRED)
 
 set(MY_EXECUTABLE_NAME "MetasequoiaImeFloatingToolWindow")
 
@@ -20,7 +22,11 @@ set(
   "./src/d2d/render_d2d.h"
   "./src/tool_window/tool_window.cpp"
   "./src/tool_window/tool_window.h"
+  "./src/utils/window_utils.cpp"
+  "./src/utils/window_utils.h"
   "./src/main.cpp"
 )
 
 add_executable(${MY_EXECUTABLE_NAME} WIN32 ${SOURCE_FILES})
+
+target_link_libraries(${MY_EXECUTABLE_NAME} PRIVATE fmt::fmt)

@@ -4,6 +4,7 @@ CompileFlags:
       -D_UNICODE,
       "-std=c++17",
       "-IC:/Users/SonnyCalcr/EDisk/CppCodes/IMECodes/MetasequoiaImeFloatingToolWindow/src",
+      "-IC:/Users/SonnyCalcr/EDisk/CppCodes/IMECodes/MetasequoiaImeFloatingToolWindow/build/vcpkg_installed/x64-windows/include",
       -Wno-microsoft-goto,
       -Wno-nonportable-include-path,
       -Wno-microsoft-extra-qualification,
