@@ -1,4 +1,6 @@
 #include "render_d2d.h"
+#include <debugapi.h>
+#include <fmt/xchar.h>
 
 static ComPtr<ID2D1Factory> pD2DFactory;
 static ComPtr<ID2D1HwndRenderTarget> pRenderTarget;
@@ -78,6 +80,11 @@ int PaintToolMenus(HWND hwnd)
 {
     if (!pRenderTarget)
         return -1;
+
+    /* Get the size of the render target */
+    D2D1_SIZE_F sizeInDIP = pRenderTarget->GetSize();
+    D2D1_SIZE_U sizeInPixels = pRenderTarget->GetPixelSize();
+    OutputDebugString(fmt::format(L"sizeInDIP: {} {}, sizeInPixels: {} {}\n", sizeInDIP.width, sizeInDIP.height, sizeInPixels.width, sizeInPixels.height).c_str());
 
     pRenderTarget->BeginDraw();
     pRenderTarget->Clear(D2D1::ColorF(25.0f / 255.0f, 25.0f / 255.0f, 25.0f / 255.0f));

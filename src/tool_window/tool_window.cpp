@@ -7,8 +7,6 @@
 #pragma comment(lib, "dwmapi.lib")
 
 HWND g_hwnd = NULL;
-uint32_t wnd_width = 326;
-uint32_t wnd_height = 56;
 
 static const wchar_t *windowClassName = L"metaseuqoiaimefloatingtoolwindowclass";
 static const wchar_t *windowTitle = L"Metaseuqoiaimefloatingtoolwindow";
@@ -105,11 +103,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
     }
     case WM_PAINT: {
+        PAINTSTRUCT ps;
+        BeginPaint(hwnd, &ps);
         PaintToolMenus(hwnd);
+        EndPaint(hwnd, &ps);
         break;
     }
     case WM_SIZE: {
         break;
+    }
+    case WM_NCHITTEST: {
+        LRESULT hit = DefWindowProc(hwnd, message, wParam, lParam);
+        if (hit == HTCLIENT)
+            hit = HTCAPTION;
+        return hit;
     }
     case WM_DESTROY: {
         PostQuitMessage(0);
