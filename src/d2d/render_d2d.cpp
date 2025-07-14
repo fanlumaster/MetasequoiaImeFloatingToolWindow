@@ -83,11 +83,39 @@ int PaintToolMenus(HWND hwnd)
 
     /* Get the size of the render target */
     D2D1_SIZE_F sizeInDIP = pRenderTarget->GetSize();
-    D2D1_SIZE_U sizeInPixels = pRenderTarget->GetPixelSize();
-    OutputDebugString(fmt::format(L"sizeInDIP: {} {}, sizeInPixels: {} {}\n", sizeInDIP.width, sizeInDIP.height, sizeInPixels.width, sizeInPixels.height).c_str());
+
+    float widthInDIP = sizeInDIP.width;
+    float heightInDIP = sizeInDIP.height;
 
     pRenderTarget->BeginDraw();
     pRenderTarget->Clear(D2D1::ColorF(25.0f / 255.0f, 25.0f / 255.0f, 25.0f / 255.0f));
+
+    //
+    // Draw a vertical bar(pill)
+    //
+    pBrush->SetColor(D2D1::ColorF(142.0f / 255.0f, 140.0f / 255.0f, 216.0f / 255.0f, 1.0f));
+    float verticalBarWidth = 3.6f;
+    float verticalBarHeight = 0.5f * heightInDIP;
+    float x = 10.0f;               // Horizontal position do not need to be centered
+    float y = 0.25f * heightInDIP; // Centered
+    D2D1_ROUNDED_RECT roundedRect = {
+        D2D1::RectF(x,                      //
+                    y,                      //
+                    x + verticalBarWidth,   //
+                    y + verticalBarHeight), //
+        verticalBarWidth / 2.0f,            //
+        verticalBarWidth / 2.0f             //
+    };
+    pRenderTarget->FillRoundedRectangle(roundedRect, pBrush.Get());
+
+    pBrush->SetColor(D2D1::ColorF(65.0f / 255.0f, 65.0f / 255.0f, 67.0f / 255.0f, 0.9f));
+    pRenderTarget->DrawLine(                                //
+        D2D1::Point2F(widthInDIP / 9.0f, 0),                //
+        D2D1::Point2F(widthInDIP / 9.0f, sizeInDIP.height), //
+        pBrush.Get(),                                       //
+        1.5f                                                //
+    );
+
     pRenderTarget->EndDraw();
     return 0;
 }

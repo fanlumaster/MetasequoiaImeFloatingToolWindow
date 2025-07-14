@@ -2,7 +2,9 @@
 #include <stdint.h>
 #include <dwmapi.h>
 #include <winnt.h>
+#include <windowsx.h>
 #include "d2d/render_d2d.h"
+#include "utils/window_utils.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -77,6 +79,19 @@ HRESULT CreateToolWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpC
     cloak = FALSE;
     DwmSetWindowAttribute(g_hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
 
+    float scale = GetWindowScale(g_hwnd);
+    wnd_width = wnd_width_dip * scale;
+    wnd_height = wnd_height_dip * scale;
+    SetWindowPos(     //
+        g_hwnd,       //
+        HWND_TOPMOST, //
+        100,          //
+        100,          //
+        wnd_width,    //
+        wnd_height,   //
+        0             //
+    );
+
     return S_OK;
 }
 
@@ -113,10 +128,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     case WM_NCHITTEST: {
-        LRESULT hit = DefWindowProc(hwnd, message, wParam, lParam);
-        if (hit == HTCLIENT)
-            hit = HTCAPTION;
-        return hit;
+        POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        ScreenToClient(hwnd, &pt);
+
+        RECT rcClient;
+        GetClientRect(hwnd, &rcClient);
+        int width = rcClient.right;
+
+        if (pt.x < width / 9)
+        {
+            return HTCAPTION;
+        }
+        else
+        {
+            return HTCLIENT;
+        }
     }
     case WM_DESTROY: {
         PostQuitMessage(0);
